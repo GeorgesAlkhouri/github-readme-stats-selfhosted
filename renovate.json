@@ -1,0 +1,21 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended"],
+  "customManagers": [
+    {
+      "customType": "regex",
+
+      "managerFilePatterns": ["/^deployment.yaml$/"],
+
+      "matchStrings": [
+        "name:\\s*GRS_REF[\\s\\S]*?value:\\s*\"(?<currentDigest>.*?)\""
+      ],
+
+      "currentValueTemplate": "master",
+      "depNameTemplate": "github-readme-stats",
+      "packageNameTemplate": "https://github.com/anuraghazra/github-readme-stats",
+      "datasourceTemplate": "git-refs",
+      "versioningTemplate": "git"
+    }
+  ]
+}
