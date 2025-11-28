@@ -1,0 +1,73 @@
+---
+name: CI
+on:
+  push:
+    branches:
+      - main
+      - "feat/*"
+  pull_request:
+    branches:
+      - main
+      - "feat/*"
+    paths:
+      - "Dockerfile"
+      - ".github/workflows/**"
+jobs:
+  lint-build-test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Lint Dockerfile
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: Dockerfile
+          failure-threshold: error
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build image (no push)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          push: false
+          load: true
+          tags: local/github-readme-stats:test
+
+      - name: Smoke test container
+        run: |
+          docker run -d --rm --name grs -p 9000:9000 \
+            -e PAT_1=$GH_README_STATS_PAT \
+            local/github-readme-stats:test
+          sleep 5
+          curl -f "http://localhost:9000/api?username=octocat" -o /tmp/card.svg
+          file /tmp/card.svg
+          grep -q "<svg" /tmp/card.svg
+          docker logs grs
+          docker stop grs
+        env:
+          GH_README_STATS_PAT: ${{ secrets.GH_README_STATS_PAT }}
+
+      - name: Scan image with Trivy
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: local/github-readme-stats:test
+          format: sarif
+          output: trivy-results.sarif
+          severity: CRITICAL,HIGH
+          ignore-unfixed: true
+
+      - name: Upload Trivy SARIF to GitHub Security
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: trivy-results.sarif
