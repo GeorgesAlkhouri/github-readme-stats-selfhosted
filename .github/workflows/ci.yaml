@@ -48,18 +48,19 @@ jobs:
           load: true # so we can `docker run` it
           tags: local/github-readme-stats:test
 
-      # --- Smoke test ---
-      - name: Run smoke test
+      - name: Smoke test container
         run: |
           docker run -d --rm --name grs -p 9000:9000 \
-            -e PAT_1=dummy_token \
+            -e PAT_1=$GH_README_STATS_PAT \
             local/github-readme-stats:test
-          # crude but effective
           sleep 15
           curl -f "http://localhost:9000/api?username=octocat" -o /tmp/card.svg
           file /tmp/card.svg
+          grep -q "<svg" /tmp/card.svg
           docker logs grs
           docker stop grs
+        env:
+          GH_README_STATS_PAT: ${{ secrets.GH_README_STATS_PAT }}
 
       # --- Security scan with Trivy ---
       - name: Scan image with Trivy

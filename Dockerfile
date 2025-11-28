@@ -1,6 +1,5 @@
 FROM node:22.21.0-alpine AS builder
 
-# Install git for cloning upstream
 RUN apk add --no-cache git
 
 WORKDIR /app
