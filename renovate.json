@@ -1,21 +1,33 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["config:recommended"],
+
+  "enabledManagers": ["dockerfile", "custom.regex", "github-actions"],
+
   "customManagers": [
     {
       "customType": "regex",
 
-      "managerFilePatterns": ["/^deployment.yaml$/"],
+      "managerFilePatterns": ["/Dockerfile$/"],
 
-      "matchStrings": [
-        "name:\\s*GRS_REF[\\s\\S]*?value:\\s*\"(?<currentDigest>.*?)\""
-      ],
+      "matchStrings": ["ARG GRS_REF=(?<currentDigest>[a-f0-9]{40})"],
 
-      "currentValueTemplate": "master",
+      "datasourceTemplate": "git-refs",
       "depNameTemplate": "github-readme-stats",
       "packageNameTemplate": "https://github.com/anuraghazra/github-readme-stats",
-      "datasourceTemplate": "git-refs",
+
+      "currentValueTemplate": "master",
       "versioningTemplate": "git"
+    }
+  ],
+
+  "packageRules": [
+    {
+      "matchManagers": ["dockerfile"],
+      "matchPackageNames": ["node"],
+      "groupName": "node base image",
+      "rangeStrategy": "bump",
+      "allowedVersions": "22.x"
     }
   ]
 }

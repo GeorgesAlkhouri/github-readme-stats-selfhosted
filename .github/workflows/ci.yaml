@@ -1,0 +1,78 @@
+---
+name: CI
+on:
+  push:
+    branches:
+      - main
+      - "feat/*"
+  pull_request:
+    branches:
+      - main
+      - "feat/*"
+    paths:
+      - "Dockerfile"
+      - ".github/workflows/**"
+jobs:
+  lint-build-test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write # for Trivy SARIF upload to Security tab
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # --- Dockerfile linting (Hadolint) ---
+      - name: Lint Dockerfile
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: Dockerfile
+          # optional: config file .hadolint.yaml in repo root
+          failure-threshold: error
+          # hadolint-action is the recommended way to run hadolint in CI 
+
+      # --- Build image (no push) ---
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3 # needed if you want multi-arch even in CI 
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3 # recommended for build-push-action 
+
+      - name: Build image (no push)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          push: false
+          load: true # so we can `docker run` it
+          tags: local/github-readme-stats:test
+
+      # --- Smoke test ---
+      - name: Run smoke test
+        run: |
+          docker run -d --rm --name grs -p 9000:9000 \
+            -e PAT_1=dummy_token \
+            local/github-readme-stats:test
+          # crude but effective
+          sleep 15
+          curl -f "http://localhost:9000/api?username=octocat" -o /tmp/card.svg
+          file /tmp/card.svg
+          docker logs grs
+          docker stop grs
+
+      # --- Security scan with Trivy ---
+      - name: Scan image with Trivy
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: local/github-readme-stats:test
+          format: sarif
+          output: trivy-results.sarif
+          severities: CRITICAL,HIGH
+          ignore-unfixed: true
+          # Trivy is a widely used container scanner with a first-party GitHub Action 
+
+      - name: Upload Trivy SARIF to GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: trivy-results.sarif
