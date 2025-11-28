@@ -1,0 +1,43 @@
+---
+
+name: Auto tag on Renovate merges
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  autotag:
+    if: github.actor == 'renovate[bot]'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # we need tags history
+
+      - name: Bump patch version and push tag
+        id: tag
+        run: |
+          # find latest tag, default to v0.0.0 if none
+          latest_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+          version=${latest_tag#v}
+
+          IFS='.' read -r major minor patch <<<"$version"
+          patch=$((patch + 1))
+          new_tag="v$major.$minor.$patch"
+
+          echo "Latest tag: $latest_tag"
+          echo "New tag: $new_tag"
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git tag "$new_tag"
+          git push origin "$new_tag"
+
+          echo "new_tag=$new_tag" >> "$GITHUB_OUTPUT"
