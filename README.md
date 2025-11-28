@@ -1,6 +1,5 @@
 # github-readme-stats-selfhosted
 
-[![CI](https://github.com/GeorgesAlkhouri/github-readme-stats-selfhosted/actions/workflows/ci.yml/badge.svg)](https://github.com/GeorgesAlkhouri/github-readme-stats-selfhosted/actions/workflows/ci.yml)
 [![Release](https://img.shields.io/github/v/release/GeorgesAlkhouri/github-readme-stats-selfhosted?sort=semver)](https://github.com/GeorgesAlkhouri/github-readme-stats-selfhosted/releases)
 [![License](https://img.shields.io/github/license/GeorgesAlkhouri/github-readme-stats-selfhosted)](./LICENSE)
 [![Issues](https://img.shields.io/github/issues/GeorgesAlkhouri/github-readme-stats-selfhosted)](https://github.com/GeorgesAlkhouri/github-readme-stats-selfhosted/issues)
