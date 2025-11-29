@@ -12,8 +12,9 @@
 
 ## ✨ What this repo gives you
 
-- A minimal **Docker image** of GitHub Readme Stats ready to run anywhere  
-  (Docker, Podman, Kubernetes, …).
+Self-hosted build of the original github-readme-stats project, packaged as a multi-arch Docker image (amd64/arm64) and continuously synced with upstream main. Images are automatically published to Docker Hub and GHCR for easy deployment on your own infra (Docker, Podman, Kubernetes, etc.).
+
+> Note: Image versions here are **independent of upstream tags**. Upstream doesn’t provide up-to-date releases, so this repo maintains its own semantic versions for published images. We use a semantic-style versioning scheme of `1.X.0`. Minor (`X`) increases track upstream changes; the major version only bumps if something unexpected and breaking happens.
 
 If you just want the public service, use the original project.  
 This repo is for people who like to own their infra. 😈
