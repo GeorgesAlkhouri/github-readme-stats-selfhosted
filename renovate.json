@@ -3,7 +3,7 @@
   "extends": ["config:recommended"],
 
   "enabledManagers": ["dockerfile", "custom.regex", "github-actions"],
-
+  "platformAutomerge": true,
   "customManagers": [
     {
       "customType": "regex",
@@ -23,11 +23,20 @@
 
   "packageRules": [
     {
+      "matchManagers": ["custom.regex"],
+      "matchDepNames": ["github-readme-stats"],
+      "groupName": "github-readme-stats upstream ref",
+      "automerge": true,
+      "automergeType": "pr"
+    },
+    {
       "matchManagers": ["dockerfile"],
       "matchPackageNames": ["node"],
       "groupName": "node base image",
       "rangeStrategy": "bump",
-      "allowedVersions": "22.x"
+      "allowedVersions": "22.x",
+      "automerge": true,
+      "automergeType": "pr"
     }
   ]
 }

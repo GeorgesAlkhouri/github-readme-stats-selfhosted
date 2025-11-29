@@ -3,21 +3,45 @@ name: Release
 
 on:
   push:
-    tags:
-      - "v*.*.*"
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
-  build-and-push:
+  release:
     runs-on: ubuntu-latest
     permissions:
       contents: write
       packages: write
       id-token: write
 
+    if: github.event_name == 'workflow_dispatch' || github.actor == 'renovate[bot]'
+
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Compute next version tag
+        id: version
+        run: |
+          latest_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+          version=${latest_tag#v}
+
+          IFS='.' read -r major minor patch <<<"$version"
+          minor=$((minor + 1))
+          new_version="$major.$minor.0"
+          new_tag="v$new_version"
+
+          echo "Latest tag:  $latest_tag"
+          echo "New tag:     $new_tag"
+          echo "New version: $new_version"
+
+          # Expose to later steps
+          echo "new_tag=$new_tag" >> "$GITHUB_OUTPUT"
+          echo "NEW_TAG=$new_tag" >> "$GITHUB_ENV"
+          echo "NEW_VERSION=$new_version" >> "$GITHUB_ENV"
 
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
@@ -46,9 +70,10 @@ jobs:
             ghcr.io/${{ github.repository_owner }}/github-readme-stats-selfhosted
             docker.io/${{ secrets.DOCKERHUB_USERNAME }}/github-readme-stats-selfhosted
           tags: |
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=semver,pattern={{major}}
+            # Use the computed semver tag as custom value
+            type=semver,pattern={{version}},value=${{ env.NEW_TAG }}
+            type=semver,pattern={{major}}.{{minor}},value=${{ env.NEW_TAG }}
+            type=semver,pattern={{major}},value=${{ env.NEW_TAG }}
 
       - name: Build and push multi-arch image
         uses: docker/build-push-action@v6
@@ -60,20 +85,21 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
-      - name: Trivy scan pushed image (Docker Hub latest)
+      - name: Trivy scan pushed image (current release version)
         uses: aquasecurity/trivy-action@0.33.1
         with:
-          image-ref: docker.io/${{ secrets.DOCKERHUB_USERNAME }}/github-readme-stats-selfhosted:latest
+          # Images are tagged with semver (1.2.3), not the "v" prefix
+          image-ref: docker.io/${{ secrets.DOCKERHUB_USERNAME }}/github-readme-stats-selfhosted:${{ env.NEW_VERSION }}
           format: table
           severity: CRITICAL,HIGH
           ignore-unfixed: true
 
-      - name: Create GitHub release
+      - name: Create GitHub release (creates tag if missing)
         uses: softprops/action-gh-release@v2
-        if: github.ref_type == 'tag'
         with:
-          tag_name: ${{ github.ref_name }}
-          name: ${{ github.ref_name }}
+          tag_name: ${{ env.NEW_TAG }} # e.g. v1.2.0
+          name: ${{ env.NEW_TAG }}
           generate_release_notes: true
+          target_commitish: ${{ github.sha }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
