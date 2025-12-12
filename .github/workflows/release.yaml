@@ -11,6 +11,7 @@ on:
         description: "Optional release version (e.g. 1.3.0 or v1.3.0). Leave empty to auto-bump minor."
         required: false
         type: string
+
 jobs:
   release:
     runs-on: ubuntu-latest
@@ -18,6 +19,7 @@ jobs:
       contents: write
       packages: write
       id-token: write
+      security-events: write
 
     if: github.event_name == 'workflow_dispatch' || github.actor == 'renovate[bot]'
 
@@ -86,7 +88,6 @@ jobs:
             ghcr.io/${{ github.repository_owner }}/github-readme-stats-selfhosted
             docker.io/${{ secrets.DOCKERHUB_USERNAME }}/github-readme-stats-selfhosted
           tags: |
-            # Use the computed semver tag as custom value
             type=semver,pattern={{version}},value=${{ env.NEW_TAG }}
             type=semver,pattern={{major}}.{{minor}},value=${{ env.NEW_TAG }}
             type=semver,pattern={{major}},value=${{ env.NEW_TAG }}
@@ -101,19 +102,26 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
-      - name: Trivy scan pushed image (current release version)
+      - name: Trivy scan pushed image (SARIF for Security tab)
         uses: aquasecurity/trivy-action@0.33.1
         with:
-          # Images are tagged with semver (1.2.3), not the "v" prefix
           image-ref: docker.io/${{ secrets.DOCKERHUB_USERNAME }}/github-readme-stats-selfhosted:${{ env.NEW_VERSION }}
-          format: table
+          format: sarif
+          output: trivy-results.sarif
           severity: CRITICAL,HIGH
           ignore-unfixed: true
+          limit-severities-for-sarif: true
+
+      - name: Upload Trivy scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: trivy-results.sarif
+          category: trivy-image
 
       - name: Create GitHub release (creates tag if missing)
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ env.NEW_TAG }} # e.g. v1.2.0
+          tag_name: ${{ env.NEW_TAG }}
           name: ${{ env.NEW_TAG }}
           generate_release_notes: true
           target_commitish: ${{ github.sha }}
