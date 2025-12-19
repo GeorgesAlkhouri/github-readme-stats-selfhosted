@@ -7,7 +7,7 @@ WORKDIR /app
 # Renovate-managed commit SHA of upstream.
 # Renovate will update GRS_REF whenever upstream master changes.
 # renovate: datasource=git-refs depName=github-readme-stats packageName=https://github.com/anuraghazra/github-readme-stats currentValue=master
-ARG GRS_REF=8994937bd139cd43b6ec431229f009f1e5204d3d
+ARG GRS_REF=61b9adbf609a069678227237703001b5041feda9
 
 # 1) Clone upstream repo
 RUN git clone https://github.com/anuraghazra/github-readme-stats.git . \
