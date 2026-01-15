@@ -1,4 +1,4 @@
-FROM node:22.21.1-alpine AS builder
+FROM node:22.22.0-alpine AS builder
 
 RUN apk add --no-cache git
 
@@ -20,7 +20,7 @@ RUN if [ -f package-lock.json ]; then \
   npm install --ignore-scripts --no-audit; \
   fi
 
-FROM node:22.21.1-alpine AS runtime
+FROM node:22.22.0-alpine AS runtime
 LABEL org.opencontainers.image.source="https://github.com/<you>/github-readme-stats-image" \
   org.opencontainers.image.description="Hardened, reproducible Docker image for anuraghazra/github-readme-stats" \
   org.opencontainers.image.licenses="MIT"
