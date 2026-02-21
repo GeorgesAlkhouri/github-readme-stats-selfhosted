@@ -103,7 +103,7 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
 
       - name: Trivy scan pushed image (SARIF for Security tab)
-        uses: aquasecurity/trivy-action@0.33.1
+        uses: aquasecurity/trivy-action@0.34.1
         with:
           image-ref: docker.io/${{ secrets.DOCKERHUB_USERNAME }}/github-readme-stats-selfhosted:${{ env.NEW_VERSION }}
           format: sarif
