@@ -10,13 +10,13 @@
 
       "managerFilePatterns": ["/Dockerfile$/"],
 
-      "matchStrings": ["ARG GRS_REF=(?<currentDigest>[a-f0-9]{40})"],
+      "matchStrings": ["ARG GSE_REF=(?<currentDigest>[a-f0-9]{40})"],
 
       "datasourceTemplate": "git-refs",
-      "depNameTemplate": "github-readme-stats",
-      "packageNameTemplate": "https://github.com/anuraghazra/github-readme-stats",
+      "depNameTemplate": "github-stats-extended",
+      "packageNameTemplate": "https://github.com/stats-organization/github-stats-extended",
 
-      "currentValueTemplate": "master",
+      "currentValueTemplate": "release",
       "versioningTemplate": "git"
     }
   ],
@@ -24,8 +24,8 @@
   "packageRules": [
     {
       "matchManagers": ["custom.regex"],
-      "matchDepNames": ["github-readme-stats"],
-      "groupName": "github-readme-stats upstream ref",
+      "matchDepNames": ["github-stats-extended"],
+      "groupName": "github-stats-extended upstream ref",
       "automerge": true,
       "automergeType": "pr"
     },
@@ -34,7 +34,7 @@
       "matchPackageNames": ["node"],
       "groupName": "node base image",
       "rangeStrategy": "bump",
-      "allowedVersions": "22.x",
+      "allowedVersions": "24.x",
       "automerge": true,
       "automergeType": "pr"
     }
