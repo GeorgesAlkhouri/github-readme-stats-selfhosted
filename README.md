@@ -12,7 +12,7 @@
 
 ## ✨ What this repo gives you
 
-Self-hosted build of GitHub Stats Extended, the actively maintained successor to github-readme-stats. It is packaged as a multi-arch Docker image (amd64/arm64) and continuously synced with the stable upstream release branch. Images are automatically published to Docker Hub and GHCR for easy deployment on your own infra (Docker, Podman, Kubernetes, etc.).
+Self-hosted build of GitHub Stats Extended, the actively maintained successor to github-readme-stats. It is packaged as a multi-arch Docker image (amd64/arm64) and synced with the stable upstream release branch after a seven-day waiting period. Images are automatically published to Docker Hub and GHCR for easy deployment on your own infra (Docker, Podman, Kubernetes, etc.).
 
 > Note: Image versions here are **independent of upstream tags**. Upstream doesn’t provide up-to-date releases, so this repo maintains its own semantic versions for published images. We use a semantic-style versioning scheme of `1.X.0`. Minor (`X`) increases track upstream changes; the major version only bumps if something unexpected and breaking happens.
 

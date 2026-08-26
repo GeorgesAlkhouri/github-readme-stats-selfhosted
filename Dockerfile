@@ -5,7 +5,8 @@ RUN apk add --no-cache git
 WORKDIR /app
 
 # Renovate-managed commit SHA of the stable upstream release branch.
-# renovate: datasource=git-refs depName=github-stats-extended packageName=https://github.com/stats-organization/github-stats-extended currentValue=release
+# Renovate only exposes upstream commits after a seven-day waiting period.
+# renovate: datasource=custom.github-stats-extended-aged depName=github-stats-extended packageName=stats-organization/github-stats-extended currentValue=0
 ARG GSE_REF=84835caea1ffa3c3809b927547b8f69bfd6b80db
 
 # 1) Clone upstream repo

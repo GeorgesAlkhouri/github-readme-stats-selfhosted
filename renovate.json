@@ -4,6 +4,9 @@
 
   "enabledManagers": ["dockerfile", "custom.regex", "github-actions"],
   "platformAutomerge": true,
+  "minimumReleaseAge": "7 days",
+  "minimumReleaseAgeBehaviour": "timestamp-required",
+  "internalChecksFilter": "strict",
   "customManagers": [
     {
       "customType": "regex",
@@ -12,14 +15,23 @@
 
       "matchStrings": ["ARG GSE_REF=(?<currentDigest>[a-f0-9]{40})"],
 
-      "datasourceTemplate": "git-refs",
+      "datasourceTemplate": "custom.github-stats-extended-aged",
       "depNameTemplate": "github-stats-extended",
-      "packageNameTemplate": "https://github.com/stats-organization/github-stats-extended",
+      "packageNameTemplate": "stats-organization/github-stats-extended",
 
-      "currentValueTemplate": "release",
-      "versioningTemplate": "git"
+      "currentValueTemplate": "0",
+      "versioningTemplate": "loose"
     }
   ],
+
+  "customDatasources": {
+    "github-stats-extended-aged": {
+      "defaultRegistryUrlTemplate": "https://api.github.com/repos/{{packageName}}/commits?sha=release&per_page=100",
+      "transformTemplates": [
+        "($cutoff := $millis() - 604800000; $eligible := $filter($, function($item) { $toMillis($item.commit.committer.date) <= $cutoff }); {\"releases\": $count($eligible) > 0 ? [{\"version\": \"0\", \"digest\": $eligible[0].sha, \"releaseTimestamp\": $eligible[0].commit.committer.date, \"sourceUrl\": \"https://github.com/stats-organization/github-stats-extended\"}] : [], \"sourceUrl\": \"https://github.com/stats-organization/github-stats-extended\"})"
+      ]
+    }
+  },
 
   "packageRules": [
     {
