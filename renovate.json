@@ -38,6 +38,7 @@
       "matchManagers": ["custom.regex"],
       "matchDepNames": ["github-stats-extended"],
       "groupName": "github-stats-extended upstream ref",
+      "minimumReleaseAgeBehaviour": "timestamp-optional",
       "automerge": true,
       "automergeType": "pr"
     },
