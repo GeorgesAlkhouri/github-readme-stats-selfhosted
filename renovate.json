@@ -4,7 +4,6 @@
     "github>georgesalkhouri/renovate-config",
     "github>georgesalkhouri/renovate-config:docker"
   ],
-  "minimumReleaseAgeBehaviour": "timestamp-required",
   "enabledManagers": [
     "dockerfile",
     "custom.regex",
