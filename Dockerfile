@@ -1,4 +1,4 @@
-FROM node:24.22.2-alpine@sha256:8a32c8cf649a49915a66e81e7a609223c708d0adabf288ee3f4077d765542f85 AS builder
+FROM node:24.22.2-alpine@sha256:a34ab6d7f6f4813f4d0c5469d74685604b962fbdbf5793a7bc7b4998ecb867c8 AS builder
 
 RUN apk add --no-cache git
 
@@ -23,7 +23,7 @@ RUN corepack enable \
 RUN node -e 'const fs = require("fs"); const path = "apps/backend/package.json"; const pkg = JSON.parse(fs.readFileSync(path)); const version = pkg.dependencies?.express ?? pkg.devDependencies?.express; if (!version) throw new Error("Upstream no longer declares express"); pkg.dependencies = { ...pkg.dependencies, express: version }; if (pkg.devDependencies) delete pkg.devDependencies.express; fs.writeFileSync(path, JSON.stringify(pkg, null, 2) + "\n");' \
   && pnpm --ignore-scripts --filter @stats-organization/github-readme-stats-backend --prod deploy --legacy /prod/backend
 
-FROM node:24.22.2-alpine@sha256:8a32c8cf649a49915a66e81e7a609223c708d0adabf288ee3f4077d765542f85 AS runtime
+FROM node:24.22.2-alpine@sha256:a34ab6d7f6f4813f4d0c5469d74685604b962fbdbf5793a7bc7b4998ecb867c8 AS runtime
 LABEL org.opencontainers.image.source="https://github.com/GeorgesAlkhouri/github-readme-stats-selfhosted" \
   org.opencontainers.image.description="Hardened, reproducible Docker image for stats-organization/github-stats-extended" \
   org.opencontainers.image.licenses="MIT"
