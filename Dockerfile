@@ -7,7 +7,7 @@ WORKDIR /app
 # Renovate-managed commit SHA of the stable upstream release branch.
 # Renovate only exposes upstream commits after a seven-day waiting period.
 # renovate: datasource=custom.github-stats-extended-aged depName=github-stats-extended packageName=stats-organization/github-stats-extended currentValue=0
-ARG GSE_REF=bb3b610cb5fd7b04c3af9d4e0ca1c0a24db263e1
+ARG GSE_REF=d14ee6985bb1663f3bedb945b0eb263965607760
 
 # 1) Clone upstream repo
 RUN git clone https://github.com/stats-organization/github-stats-extended.git . \
