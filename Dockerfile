@@ -28,6 +28,20 @@ LABEL org.opencontainers.image.source="https://github.com/GeorgesAlkhouri/github
   org.opencontainers.image.description="Hardened, reproducible Docker image for stats-organization/github-stats-extended" \
   org.opencontainers.image.licenses="MIT"
 
+# Pull Alpine security fixes that are newer than the pinned base image, then
+# drop the bundled package managers. The container only runs `node express.js`,
+# so npm, corepack and yarn are unused attack surface.
+RUN apk upgrade --no-cache \
+  && rm -rf \
+    /usr/local/lib/node_modules/npm \
+    /usr/local/lib/node_modules/corepack \
+    /usr/local/bin/npm \
+    /usr/local/bin/npx \
+    /usr/local/bin/corepack \
+    /opt/yarn-v* \
+    /usr/local/bin/yarn \
+    /usr/local/bin/yarnpkg
+
 RUN addgroup -S app && adduser -S -G app app
 
 WORKDIR /app
